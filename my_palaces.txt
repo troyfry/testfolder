@@ -1,0 +1,12 @@
+hotelbathroom - shelves, bathtub, shower head, toilet, towel rack, hair dryer, sink, mirror, magnified mirror, trash can |
+my bedroom3 - shelves, bathtub, shower head, toilet, towel rack, hairdryer, sink, mirror, magnified mirror, trash can |
+mp_test1266 - window, shelves, bathtub, shower head, toilet, towel rack, hair dryer, sink, mirror, magnified mirror |
+bathroom-hotel - window, rug, plant pot, fireplace, sofa, door, pillow, sink, mirror, magnified mirror
+bathroom-brno - fan, towel rack, bathtub, toilet, sink
+bathroom-brno33 - fan, towel rack, bathtub, toilet, sink, soap, mirror
+bathroom-statio - fan, trash, door, mirror, toilet, paper towels
+bathroom-brno88 - fan, towel rack, bathtub, toilet, sink, window
+tom nbrhd1 - front yard, neighbor 1, end neighbor, man friend, women friend, alley, corner store, friend house, hill, junk yard
+work1 - person1, person2, person3, person4, person5, person6, person7, person8, person9, person10
+Bathroom - home - shelf, towel rack, bathtub, toilet, sink, trash can
+bathr1 - shelf, bathtub, toilet, sink, mirror, trashcan
