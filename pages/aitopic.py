@@ -121,7 +121,7 @@ def main():
         with open(filename, "r") as file:
             text_contents = file.read()
 
-        st.download_button("Download some text", text_contents, file_name=filename)
+        st.download_button("Download text", text_contents, file_name=filename)
         
         pal_line = f"{palace_name} - {', '.join(items)}"
         print(palace_name)
