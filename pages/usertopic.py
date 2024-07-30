@@ -133,7 +133,7 @@ def main():
             for i in range(len(subtopics_list)):
                 st.markdown(f"**{palace_items[i]}**: <span style='color:blue;'>{bullet_points[i] if i < len(bullet_points) else 'N/A'} (Memorable Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})</span>", unsafe_allow_html=True)
 
-            filename = f"textfiles/{topic_input}.txt"
+            filename = f"{topic_input}.txt"
             with open(filename, "w") as file:
                 file.write(f"Palace: {full_palace_name}\nTopic: {topic_input}\nPalace items: {palace_items} \n subtopics: {subtopics_list}:\n\n")
                 for i in range(len(subtopics_list)):

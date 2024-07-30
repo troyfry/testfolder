@@ -85,7 +85,7 @@ def main():
 
 
     if st.button("Associate"):
-        filename = f"textfiles/{topic}.txt"
+        filename = f"{topic}.txt"
         
 
         st.write("\nAssociating...")
