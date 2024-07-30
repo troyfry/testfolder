@@ -10,3 +10,4 @@ tom nbrhd1 - front yard, neighbor 1, end neighbor, man friend, women friend, all
 work1 - person1, person2, person3, person4, person5, person6, person7, person8, person9, person10
 Bathroom - home - shelf, towel rack, bathtub, toilet, sink, trash can
 bathr1 - shelf, bathtub, toilet, sink, mirror, trashcan
+bathr177 - fan, desk, towel rack, bathtub, toilet
