@@ -113,8 +113,10 @@ def main():
                 file.write(f"\n{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
         st.write(f"\nInformation saved to {filename}")
 
-        text_contents = '''This is some text'''
-        st.download_button("Download some text", text_contents)
+        with open(filename, "r") as file:
+            text_contents = file.read()
+
+        st.download_button("Download some text", text_contents, file_name=filename)
         
         pal_line = f"{palace_name} - {', '.join(items)}"
         print(palace_name)
