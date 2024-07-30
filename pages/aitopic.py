@@ -70,14 +70,16 @@ def main():
 
     with st.expander("SEE PALACES"):
         on = st.toggle("show palaces")
+
+        with open("my_palaces.txt", "r") as file:
+            palace_contents = file.read()
+
+            st.download_button("Download my_palaces.txt", palace_contents, file_name="my_palaces")
         if on:
         #  if st.button("Load Palaces"):
             usertopic.open_palace_file()  
 
-    with open("palace.txt", "r") as file:
-        palace_contents = file.read()
-
-        st.download_button("Download palace.txt", palace_contents, file_name=filename)
+        
 
 
     palace_name = st.text_input(r"$\textsf{\Large Enter a name for your memory palace:}$", max_chars=15)
