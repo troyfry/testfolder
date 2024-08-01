@@ -20,7 +20,8 @@ hide_default_format = """
        </style>
        """
 
-openai_api_key = st.secrets["OPENAI_API_KEY"]
+#openai_api_key = st.secrets["OPENAI_API_KEY"]
+openai_api_key = st.sidebar.text_input('OpenAI API Key')
 
 llm = OpenAI(temperature=0.6, openai_api_key = openai_api_key)
  # Initialize empty lists for items before and after the dash
@@ -59,14 +60,12 @@ def get_topic_info(topic):
 def get_memorable_imagery(item, info):
     prompt = f"""
     Using the memory palace method, create a succint, vivid and memorable mental imagery to associate the phrase '{info}' with the item '{item}':
-    Make the associations obvious and brief. 
+    Make the associations interesting, obvious and brief. 
     """
     response = llm.predict(prompt)
     return response
 
 def main():
-
-   
 
     with st.expander("SEE PALACES"):
         on = st.toggle("show palaces")

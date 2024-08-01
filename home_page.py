@@ -19,6 +19,9 @@ st.write("# Welcome to Studeaze! 👋")
 
 
 st.sidebar.success("Select a demo above.")
+
+#openai_api_key = st.sidebar.text_input('OpenAI API Key')
+
 #or Rememrable
 st.markdown(
     """

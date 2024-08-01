@@ -8,10 +8,11 @@ import os
 
 
 
-#os.environ['OPENAI_API_KEY'] = openapi_key
+#os.environ['OPENAI_API_KEY'] = openapi_keya
 st.set_page_config(layout="wide", page_title="Studeaze App")
 
-openai_api_key = st.secrets["OPENAI_API_KEY"]
+#openai_api_key = st.secrets["OPENAI_API_KEY"]
+openai_api_key = st.sidebar.text_input('OpenAI API Key')
 
 llm = OpenAI(temperature=0.6, openai_api_key = openai_api_key)
  # Initialize empty lists for items before and after the dash
@@ -29,8 +30,9 @@ def get_topic_info(subtopics_list, palace_items):
 
 
 def get_memorable_imagery(palaceItems, subtopics):
-    prompt = f"""Using the memory palace method, use the meaning of the text "{subtopics}" to create a one-sentence, vivid, and memorable mental imagery to associate the phrase '{subtopics}' with the palce item '{palaceItems}':
-    Make the associations obvious and brief. 
+    prompt = f"""Using the memory palace method, use the meaning of the text "{subtopics}" to create a one-sentence, vivid, and memorable mental imagery 
+    to associate the phrase '{subtopics}' with the palace items '{palaceItems}':
+    Make the associations obvious, interesting and brief. 
     """
     response = llm.predict(prompt)
     return response
@@ -97,7 +99,6 @@ def main():
     col1, col2 = st.columns([3,4])
 
     with col1:
-        
         with st.expander("Topic you want to learn"):
             
             topic_input = st.text_input("Enter topic - i.e. World War 1")
