@@ -8,11 +8,6 @@ import os
 from pages import usertopic
 
 
-
-
-#os.environ['OPENAI_API_KEY'] = openapi_key
-#st.set_page_config(layout="wide", page_title="Studeaze App")
-
 hide_default_format = """
        <style>
        #MainMenu {visibility: hidden; }
@@ -26,11 +21,9 @@ openai_api_key = st.sidebar.text_input('OpenAI API Key')
 llm = OpenAI(temperature=0.6, openai_api_key = openai_api_key)
  # Initialize empty lists for items before and after the dash
 
-
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-
-st.title("Association Learning with AI")
+st.title("Interesting Learning")
 
 number_choice = st.number_input(r"$\textsf{\Large Enter number of Main points to retreive:}$", value=5, format="%d", min_value=5, max_value=10)
 number_choice = int(number_choice) 
@@ -88,7 +81,13 @@ def main():
     items = [st.text_input(f"Enter item {i+1} for your memory palace:",  max_chars=16) for i in range(number_choice)]
 
 
+
+
     if st.button("Associate"):
+        if not openai_api_key.startswith('sk-'):
+            st.warning('Please enter your OpenAI key!')
+       
+
         filename = f"{topic}.txt"
         
 
@@ -115,8 +114,9 @@ def main():
             file.write(f"Topic: {topic}: Palace: {full_palace_name}\n")
             for i in range(number_choice):
                 file.write(f"\n{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
-        st.write(f"\nInformation saved to {filename}")
+       # st.write(f"\nInformation saved to {filename}")
 
+     
         with open(filename, "r") as file:
             text_contents = file.read()
 
