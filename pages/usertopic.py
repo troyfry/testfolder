@@ -93,6 +93,8 @@ palace_items = []
 
 
 def main():
+    if not openai_api_key.startswith('sk-'):
+            st.warning('Please enter your OpenAI key!')
   
     st.title("Memory Palace App")
 
