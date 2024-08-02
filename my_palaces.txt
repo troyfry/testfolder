@@ -1,4 +1,1 @@
-mempal1 - window, rug, bed, fireplace, toilet
-mempal1 - window, rug, bed, fireplace, toilet
-mempal13 - wall, chair, table, cat area, play area, dog cage, pillow
-rug - sofa, plant, tv, chair, desk, table, window, fireplace, mirror, door
+
