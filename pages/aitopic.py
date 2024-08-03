@@ -23,7 +23,6 @@ llm = OpenAI(temperature=0.6, openai_api_key = openai_api_key)
 
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-<<<<<<< HEAD
 instruct = """
 Complete the input fields. The ordered list of items you 
 enter will be associated with the main points of the AI respone.
@@ -33,9 +32,6 @@ with st.expander("Instructions"):
     st.write(instruct)
 
 st.title("Make Learning Interesting")
-=======
-st.title("Interesting Learning")
->>>>>>> 71c664e0a6d3e377c360757b615aa048c7284e2f
 
 if not openai_api_key.startswith('sk-'):
             st.warning('Please enter your OpenAI key!')
