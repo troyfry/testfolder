@@ -84,19 +84,9 @@ def main():
     full_palace_name = f"{topic} - {palace_name}"
 
     items = [st.text_input(f"Enter item {i+1} for your memory palace:",  max_chars=16) for i in range(number_choice)]
-<<<<<<< HEAD
     
     if st.button("Associate"):
        
-=======
-
-
-
-
-    if st.button("Associate"):
-        if not openai_api_key.startswith('sk-'):
-            st.warning('Please enter your OpenAI key!')
->>>>>>> 71c664e0a6d3e377c360757b615aa048c7284e2f
        
 
         filename = f"{topic}.txt"
@@ -127,16 +117,10 @@ def main():
                 file.write(f"\n{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
        # st.write(f"\nInformation saved to {filename}")
 
-<<<<<<< HEAD
         with open(f"{filename}", "r") as file:
             response_contents = file.read()
             st.download_button("Download results", response_contents, file_name=f"{filename}")
             os.remove(filename)
-=======
-     
-        with open(filename, "r") as file:
-            text_contents = file.read()
->>>>>>> 71c664e0a6d3e377c360757b615aa048c7284e2f
 
     palace_file =  f"{palace_name}.txt" 
         

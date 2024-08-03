@@ -69,17 +69,10 @@ palace_data = {}
 palace_items = []
 
 def main():
-<<<<<<< HEAD
    
     instruct = """
     Enter your subject of choice. List the things you want to learn separated by a 'line return'. 
     Enter palace items per 'thing to learn'. AI will respond with association between each 'thing to learn' and palace item
-=======
-    if not openai_api_key.startswith('sk-'):
-            st.warning('Please enter your OpenAI key!')
-  
-    st.title("Memory Palace App")
->>>>>>> 71c664e0a6d3e377c360757b615aa048c7284e2f
 
     hint: For your palace and items choose a place that you know well
     """
