@@ -8,11 +8,6 @@ import os
 from pages import usertopic
 
 
-
-
-#os.environ['OPENAI_API_KEY'] = openapi_key
-#st.set_page_config(layout="wide", page_title="Studeaze App")
-
 hide_default_format = """
        <style>
        #MainMenu {visibility: hidden; }
@@ -26,15 +21,26 @@ openai_api_key = st.sidebar.text_input('OpenAI API Key')
 llm = OpenAI(temperature=0.6, openai_api_key = openai_api_key)
  # Initialize empty lists for items before and after the dash
 
-
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
+instruct = """
+Complete the input fields. The ordered list of items you 
+enter will be associated with the main points of the AI respone.
+hint: For your palace and items choose a place that you know well
+"""
+with st.expander("Instructions"):
+    st.write(instruct)
 
-st.title("Association Learning with AI")
+st.title("Make Learning Interesting")
 
-number_choice = st.number_input(r"$\textsf{\Large Enter number of Main points to retreive:}$", value=5, format="%d", min_value=5, max_value=10)
+if not openai_api_key.startswith('sk-'):
+            st.warning('Please enter your OpenAI key!')
+
+  
+
+number_choice = st.number_input(r"$\textsf{\Large Enter number of Main points (5-10) to retreive:}$", value=5, format="%d", min_value=5, max_value=10)
 number_choice = int(number_choice) 
-topic = st.text_input(r"$\textsf{\Large Enter the topic you want to learn about:}$", max_chars=50)
+topic = st.text_input(r"$\textsf{\Large Enter the topic you want to learn about (i.e. World War 1):}$", max_chars=50)
     
 
 # Define the prompt templates
@@ -43,11 +49,8 @@ topic_prompt = PromptTemplate(
     template=f"Provide {number_choice} important bullet points about {topic}:"
 )
 
-
 # Define the chains
 topic_chain = LLMChain(llm=llm, prompt=topic_prompt)
-
-
 
 
 def get_topic_info(topic):
@@ -61,34 +64,27 @@ def get_memorable_imagery(item, info):
     prompt = f"""
     Using the memory palace method, create a succint, vivid and memorable mental imagery to associate the phrase '{info}' with the item '{item}':
     Make the associations interesting, obvious and brief. 
+   
     """
     response = llm.predict(prompt)
     return response
 
 def main():
 
-    with st.expander("SEE PALACES"):
-        on = st.toggle("show palaces")
+  #  with st.expander("SEE PALACES"):
+  #      on = st.toggle("show palaces")
 
-        with open("my_palaces.txt", "r") as file:
-            palace_contents = file.read()
-
-            st.download_button("Download my_palaces.txt", palace_contents, file_name="my_palaces.txt")
-        if on:
-        #  if st.button("Load Palaces"):
-            usertopic.open_palace_file()  
-
-        
-
-
-    palace_name = st.text_input(r"$\textsf{\Large Enter a name for your memory palace:}$", max_chars=15)
+    
+    palace_name = st.text_input(r"$\textsf{\Large Enter a name for your memory palace (i.e mybedroom): }$", max_chars=15)
 
     full_palace_name = f"{topic} - {palace_name}"
 
     items = [st.text_input(f"Enter item {i+1} for your memory palace:",  max_chars=16) for i in range(number_choice)]
-
-
+    
     if st.button("Associate"):
+       
+       
+
         filename = f"{topic}.txt"
         
 
@@ -110,25 +106,33 @@ def main():
             st.markdown(f"**{items[i]}**: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Memorable Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})")
 
         # Save the information to a text file
-        
+       
         with open(filename, "w") as file:
             file.write(f"Topic: {topic}: Palace: {full_palace_name}\n")
             for i in range(number_choice):
                 file.write(f"\n{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
-        st.write(f"\nInformation saved to {filename}")
+       # st.write(f"\nInformation saved to {filename}")
 
-        with open(filename, "r") as file:
-            text_contents = file.read()
+        with open(f"{filename}", "r") as file:
+            response_contents = file.read()
+            st.download_button("Download results", response_contents, file_name=f"{filename}")
+            os.remove(filename)
 
-        st.download_button("Download text", text_contents, file_name=filename)
+    palace_file =  f"{palace_name}.txt" 
         
-        pal_line = f"{palace_name} - {', '.join(items)}"
-        print(palace_name)
-        usertopic.add_to_palace_file(pal_line)
-        
-        
+    pal_line = f"{palace_name} - {', '.join(items)}"
 
+    with open(palace_file, "w") as file:
+        file.write(pal_line)
+
+    with open(palace_file, "r") as file:
+        text_contents = file.read()
+
+    st.download_button("Download palace", text_contents, file_name=palace_file)
+    os.remove(palace_file)
+   # with st.button("reload"):
+         
+   # usertopic.add_to_palace_file(pal_line)
             
-
 if __name__ == "__main__":
     main()

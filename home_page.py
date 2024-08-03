@@ -1,10 +1,10 @@
 import streamlit as st
 
 
-
 st.set_page_config(
     page_title="Studeaze",
     page_icon="👋",
+    layout="wide"
 )
 hide_default_format = """
        <style>
