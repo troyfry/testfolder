@@ -91,7 +91,7 @@ def main():
             subtopics_input = st.text_area("Subtopic list? (line return after each entry):", max_chars=500)
             subtopics_list = [sub.strip() for sub in subtopics_input.splitlines()]
             
-            palace_name = st.text_input("Enter a name for your memory palace (i.e mybedroom):")
+            palace_name = st.text_input("Enter a name for your memory palace (i.e mybedroom):", max_chars=15)
             
             palace_items = []
             for i, subtopic in enumerate(subtopics_list):
