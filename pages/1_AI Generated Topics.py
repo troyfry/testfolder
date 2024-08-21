@@ -1,4 +1,3 @@
-
 import os
 import platform
 import pandas as pd
@@ -41,19 +40,12 @@ st.markdown("### Let AI Guide You ###")
 og_file = "palace_items.csv"
 category_file = "categories.csv"
 
-# Determine the home directory and construct the path
-home_directory = os.path.expanduser("~")
-if platform.system() == "Windows":
-    app_directory = os.path.join(home_directory, "app")
-else:
-    app_directory = os.path.join(home_directory, "app")
-
 # Create the directory if it does not exist
 os.makedirs(app_directory, exist_ok=True)
 
 # Construct the full paths for palace_items.csv and categories.csv
-csv_file = os.path.join(app_directory, 'palace_items.csv')
-category_csv_file = os.path.join(app_directory, 'categories.csv')
+csv_file = os.path.join(app_directory, og_file)
+category_csv_file = os.path.join(app_directory, category_file)
 
 # Function to create an empty CSV file with the given columns
 def create_empty_csv(file_path, columns):
@@ -89,6 +81,7 @@ else:
 number_choice = 5  # Default number of points
 prefill_palace_name = ''
 prefill_items = [''] * 10
+
 with st.expander("Start Here"):
     entered_pal, user_pal = st.columns(2)
     palace_list = palace_data['Palace'].unique().tolist()
@@ -152,12 +145,10 @@ with st.expander("Start Here"):
     )
     topic_chain = LLMChain(llm=llm, prompt=topic_prompt)
 
-
     def get_topic_info(topic, number_choice):
         response = topic_chain.run({"topic": topic})
         points = response.strip().split('\n')
         return [point.strip('- ') for point in points if point.strip()][:number_choice]
-
 
     def get_memorable_imagery(item, info):
         prompt = f"""
@@ -166,7 +157,6 @@ with st.expander("Start Here"):
         """
         response = llm.predict(prompt)
         return response
-
 
     def save_to_csv(palace_name, items, csv_file):
         new_entry = {'Palace': palace_name}
@@ -180,7 +170,6 @@ with st.expander("Start Here"):
 
         df = df.append(new_entry, ignore_index=True)
         df.to_csv(csv_file, index=False)
-
 
     def save_to_category_folder(category, palace_name, items, bullet_points, imagery_list):
         # Create category folder if it does not exist
@@ -208,12 +197,11 @@ with st.expander("Start Here"):
             category_data = category_data.append({'Category': new_category}, ignore_index=True)
             category_data.to_csv(category_csv_file, index=False)
 
-
     def main():
         if st.button("Associate", disabled=disable_associate_button):
-            st.success("\nAssociating...")
+            st.success("Associating...")
             bullet_points = get_topic_info(topic, number_choice)
-            st.success("\nGenerating memorable mental imagery with your palace items...")
+            st.success("Generating memorable mental imagery with your palace items...")
             imagery_list = [get_memorable_imagery(items[i], bullet_points[i] if i < len(bullet_points) else '') for i in
                             range(number_choice)]
 
@@ -227,30 +215,24 @@ with st.expander("Start Here"):
             if not selected_palace:
                 try:
                     save_to_csv(palace_name, items, csv_file)
+                    st.success(f"Palace info saved to {csv_file}")
 
-                except AttributeError as e:
-                    # Handle the AttributeError and display a user-friendly message
+                except Exception as e:
                     st.error(f"An error occurred: {e}")
-                    st.write(
-                        "Create the required files.")
+                    st.write("Create the required files.")
 
-            st.success(f"Palace info saved to {csv_file}")
             selected_or_new_category = selected_category if selected_category else new_category
             if selected_or_new_category:
-                filename = save_to_category_folder(selected_or_new_category, full_palace_name, items, bullet_points,
-                                                   imagery_list)
-              #  with open(filename, "r") as file:
-              #      response_contents = file.read()
-              #      st.download_button("Download results", response_contents, file_name=os.path.basename(filename))
+                filename = save_to_category_folder(selected_or_new_category, full_palace_name, items, bullet_points, imagery_list)
+                with open(filename, "r") as file:
+                    response_contents = file.read()
+                    st.download_button("Download results", response_contents, file_name=os.path.basename(filename))
 
             if new_category and new_category != selected_category:
                 add_category_to_csv(new_category, category_csv_file)
 
             if st.button('Reset'):
                 st.experimental_rerun()
-
-
-
 
     if __name__ == "__main__":
         main()
