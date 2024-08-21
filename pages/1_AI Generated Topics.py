@@ -1,88 +1,114 @@
-Perfectly
-working
-# Working code testfolder/AI Topic 8/13
 
-import openai
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-from langchain import PromptTemplate, LLMChain, OpenAI
-import pandas as pd
 import os
+import platform
+import pandas as pd
+import streamlit as st
+from langchain import LLMChain, OpenAI
+from langchain.prompts import PromptTemplate
+
+# Determine the home directory and construct the path
+home_directory = os.path.expanduser("~")
+app_directory = os.path.join(home_directory, "app")
+
+# Print debug information
+st.write("Home Directory:", home_directory)
+st.write("App Directory:", app_directory)
+st.write("Current Working Directory:", os.getcwd())
+
+# List files in the directory
+if os.path.exists(app_directory):
+    st.write("Files in App Directory:", os.listdir(app_directory))
+else:
+    st.write("App Directory does not exist.")
+
+# Get OpenAI API key
+openai_api_key = st.text_input('OpenAI API Key', disabled=True)
+llm = OpenAI(temperature=0.6, openai_api_key=openai_api_key)
 
 # Hide default Streamlit menu and footer
 hide_default_format = """
        <style>
        #MainMenu {visibility: hidden; }
        footer {visibility: hidden;}
-
        </style>
        """
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-st.markdown("## Study with ease ##\n Mastering Memory Palaces ")
-st.markdown(
-    """
-    ### Let AI Guide You ###
-    """)
-# Get OpenAI API key
-openai_api_key = st.text_input('OpenAI API Key', disabled=True)
+st.markdown("## Study with ease ##\n Mastering Memory Palaces")
+st.markdown("### Let AI Guide You ###")
 
-llm = OpenAI(temperature=0.6, openai_api_key=openai_api_key)
-
-# Instructions for the user
-instruct = """
-Please note that to use the AI-powered features in the Memory Palace tool, you might need your own OpenAI API key with a 
-balance of about $1 or more. This ensures that the AI can generate the associations effectively for your learning sessions.\n
-**Save "palace_items.csv" to the appropriate location on your local drive:**
-
-- **For Mac:** '/Users/yourusername/'
-- **For Windows:** 'C:\\Users\\yourusername\\'
-
-**Instructions:**
-
-1. **Enter the name of a palace** (a place you know well) or **Add a new palace**.
-2. **Provide the topic you wish to learn about.**
-3. **Specify the number of main points you want the AI to retrieve.** (If selecting from an existing palace, the number of main points will match the number of palace items.)
-4. **List the palace items in your palace.** Each item will be associated with one of the main points retrieved by the AI.
-
-**Note:** Keep in mind the principle of "GIGO" - Garbage In, Garbage Out.
-"""
+# Define filenames
 og_file = "palace_items.csv"
-with st.expander("Prerequisite:"):
-    st.markdown(instruct)
-    with open(og_file, "r") as file:
-        response_contents = file.read()
-        st.download_button("Download palace_items.csv", response_contents, file_name=f"{og_file}")
+category_file = "categories.csv"
 
-# if not openai_api_key.startswith('sk-'):
-#   st.warning('Please enter your OpenAI key!')
-
-# File path for the CSV file
+# Determine the home directory and construct the path
 home_directory = os.path.expanduser("~")
-csv_file = file_path = os.path.join(home_directory, 'palace_items.csv')
+if platform.system() == "Windows":
+    app_directory = os.path.join(home_directory, "app")
+else:
+    app_directory = os.path.join(home_directory, "app")
 
-# Load existing data from CSV
+# Create the directory if it does not exist
+os.makedirs(app_directory, exist_ok=True)
+
+# Construct the full paths for palace_items.csv and categories.csv
+csv_file = os.path.join(app_directory, 'palace_items.csv')
+category_csv_file = os.path.join(app_directory, 'categories.csv')
+
+# Function to create an empty CSV file with the given columns
+def create_empty_csv(file_path, columns):
+    pd.DataFrame(columns=columns).to_csv(file_path, index=False)
+
+# Check if files exist and provide an option to create them if they don't
+if not os.path.exists(csv_file) or not os.path.exists(category_csv_file):
+    st.warning("Required files not found! Please create them to continue.")
+    if st.button("Create palace_items.csv and categories.csv"):
+        # Create the necessary files with appropriate columns
+        create_empty_csv(csv_file, ['Palace'] + [f'Item_{i + 1}' for i in range(10)])
+        create_empty_csv(category_csv_file, ['Category'])
+        st.success("Files created successfully! Please reload the page.")
+        st.experimental_rerun()
+else:
+    st.success("Required files found! You can proceed.")
+
+# Load existing palace data from CSV
 if os.path.exists(csv_file):
     palace_data = pd.read_csv(csv_file)
 else:
     palace_data = pd.DataFrame(columns=['Palace'] + [f'Item_{i + 1}' for i in range(10)])
+
+# Load existing categories from CSV
+if os.path.exists(category_csv_file):
+    category_data = pd.read_csv(category_csv_file)
+    category_list = sorted(set(category_data['Category'].dropna().tolist() + ['']))
+else:
+    category_data = pd.DataFrame(columns=['Category'])
+    category_list = ['']
+
 # Initialize variables
 number_choice = 5  # Default number of points
 prefill_palace_name = ''
 prefill_items = [''] * 10
-
 with st.expander("Start Here"):
     entered_pal, user_pal = st.columns(2)
     palace_list = palace_data['Palace'].unique().tolist()
-    # Add content to the first column
-    with entered_pal:
-        # Dropdown to select an existing palace
+    category_col, new_category_col = st.columns([3, 1])
 
+    # Category selection or creation
+    with category_col:
+        selected_category = st.selectbox('Select Category', category_list)
+        new_category_disabled = bool(selected_category)
+
+    with new_category_col:
+        new_category = st.text_input('New Category (if applicable)', '', disabled=new_category_disabled)
+        new_category_disabled = not bool(new_category)
+
+    # Dropdown to select an existing palace
+    with entered_pal:
         selected_palace = st.selectbox('Select an existing palace (optional)', [''] + palace_list)
 
-    # Add content to the second column
+    # Input field for palace name, disabled if a palace is selected
     with user_pal:
-        # Input field for palace name, disabled if a palace is selected
         palace_name = st.text_input(
             'Add new memory palace (i.e myRoom)',
             max_chars=15,
@@ -95,28 +121,16 @@ with st.expander("Start Here"):
     # Update values if a palace is selected
     if selected_palace:
         prefill_data = palace_data[palace_data['Palace'] == selected_palace].iloc[0]
-
-        # Count the non-empty items before converting them to strings
         existing_items_count = sum(
             [1 for i in range(10) if pd.notna(prefill_data[f'Item_{i + 1}']) and prefill_data[f'Item_{i + 1}'] != ''])
-
-        # Now process and store the items
-        prefill_items = [str(prefill_data[f'Item_{i + 1}']) for i in range(10)]  # Ensure items are strings
-        number_choice = existing_items_count  # Set number_choice based on the number of existing items
-
-    # Handle prefill button
-    # if selected_palace and st.button("Prefill Room Items"):  # Prefill Button
-    #   st.session_state.prefill = True
-    #   st.experimental_rerun()
+        prefill_items = [str(prefill_data[f'Item_{i + 1}']) for i in range(10)]
+        number_choice = existing_items_count
 
     # Input fields for number_choice if a new palace is being created
     if not selected_palace:
-        number_choice = st.slider('Number of Main points (5-10) to retrieve:', min_value=5,
-                                  max_value=10, value=5)
-    st.markdown(
-        """<hr style="border:2px solid white">""",
-        unsafe_allow_html=True
-    )
+        number_choice = st.slider('Number of Main points (5-10) to retrieve:', min_value=5, max_value=10, value=5)
+
+    st.markdown("""<hr style="border:2px solid white">""", unsafe_allow_html=True)
 
     # Adjust the number of input fields based on number_choice
     items = [st.text_input(f"Enter item {i + 1} for your memory palace:", max_chars=16,
@@ -127,7 +141,6 @@ with st.expander("Start Here"):
         full_palace_name = f"{topic} - {selected_palace}"
     else:
         full_palace_name = f"{topic} - {palace_name}"
-        # Check if any input item is empty
 
     disable_associate_button = any(
         item.strip() == '' for item in items) or full_palace_name.strip() == '' or topic.strip() == ''
@@ -137,81 +150,107 @@ with st.expander("Start Here"):
         input_variables=["topic"],
         template=f"Provide {number_choice} important bullet points about {topic}:"
     )
-
-    # Define the chains
     topic_chain = LLMChain(llm=llm, prompt=topic_prompt)
 
 
-def get_topic_info(topic, number_choice):
-    response = topic_chain.run({"topic": topic})
-    points = response.strip().split('\n')
-    # Ensure we only use the number of points specified by number_choice
-    return [point.strip('- ') for point in points if point.strip()][:number_choice]
+    def get_topic_info(topic, number_choice):
+        response = topic_chain.run({"topic": topic})
+        points = response.strip().split('\n')
+        return [point.strip('- ') for point in points if point.strip()][:number_choice]
 
 
-def get_memorable_imagery(item, info):
-    prompt = f"""
-    Using the memory palace method, create a succinct, vivid and memorable mental imagery to associate the phrase '{info}' with the item '{item}':
-    Make the associations interesting, obvious and brief.
-    """
-    response = llm.predict(prompt)
-    return response
+    def get_memorable_imagery(item, info):
+        prompt = f"""
+        Using the memory palace method, create a succinct, vivid and memorable mental imagery to associate the phrase '{info}' with the item '{item}':
+        Make the associations interesting, obvious and brief.
+        """
+        response = llm.predict(prompt)
+        return response
 
 
-def save_to_csv(palace_name, items, csv_file):
-    new_entry = {'Palace': palace_name}
-    for i, item in enumerate(items):
-        new_entry[f'Item_{i + 1}'] = item
+    def save_to_csv(palace_name, items, csv_file):
+        new_entry = {'Palace': palace_name}
+        for i, item in enumerate(items):
+            new_entry[f'Item_{i + 1}'] = item
 
-    if os.path.exists(csv_file):
-        df = pd.read_csv(csv_file)
-    else:
-        df = pd.DataFrame(columns=['Palace'] + [f'Item_{i + 1}' for i in range(10)])
+        if os.path.exists(csv_file):
+            df = pd.read_csv(csv_file)
+        else:
+            df = pd.DataFrame(columns=['Palace'] + [f'Item_{i + 1}' for i in range(10)])
 
-    df = df.append(new_entry, ignore_index=True)
-    df.to_csv(csv_file, index=False)
+        df = df.append(new_entry, ignore_index=True)
+        df.to_csv(csv_file, index=False)
 
 
-def main():
-    # Associate button is disabled if any input items are empty
-    if st.button("Associate", disabled=disable_associate_button):
-        filename = f"{topic}.txt"
-        st.success("\nAssociating...")
-        bullet_points = get_topic_info(topic, number_choice)
-        st.success("\nGenerating memorable mental imagery with your palace items...")
-        imagery_list = [get_memorable_imagery(items[i], bullet_points[i] if i < len(bullet_points) else '') for i in
-                        range(number_choice)]
+    def save_to_category_folder(category, palace_name, items, bullet_points, imagery_list):
+        # Create category folder if it does not exist
+        category_folder = os.path.join(app_directory, category)
+        os.makedirs(category_folder, exist_ok=True)
 
-        st.markdown(f"**Memory Palace: {full_palace_name}**")
-        st.markdown("---")  # Horizontal line
-
-        for i in range(number_choice):
-            st.markdown(
-                f"**{items[i]}**: {bullet_points[i] if i < len(bullet_points) else 'N/A'} \n(Memorable Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})")
-
-        # Save only if a new palace is created
-        if not selected_palace:
-            save_to_csv(palace_name, items, csv_file)
-            st.success(f"Palace info saved to {csv_file}")
-
-        # Save the information to a text file
+        # Define filename and save to category folder
+        filename = os.path.join(category_folder, f"{palace_name}.txt")
         with open(filename, "w") as file:
-            file.write(f"Topic: {topic}: Palace: {full_palace_name}\n")
+            file.write(f"Topic: {topic}\nPalace: {palace_name}\n")
             for i in range(number_choice):
                 file.write(
-                    f"\n{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
+                    f"{items[i]}: {bullet_points[i] if i < len(bullet_points) else 'N/A'} (Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})\n")
+        return filename
 
-        with open(f"{filename}", "r") as file:
-            response_contents = file.read()
-            st.download_button("Download results", response_contents, file_name=f"{filename}")
+    def add_category_to_csv(new_category, category_csv_file):
+        # Check if the category file exists and load existing data
+        if os.path.exists(category_csv_file):
+            category_data = pd.read_csv(category_csv_file)
+        else:
+            category_data = pd.DataFrame(columns=['Category'])
 
-        if st.button('Reset'):
-            st.experimental_rerun()
-
-            # os.remove(filename)
-
-
-if __name__ == "__main__":
-    main()
+        # Add new category if it does not exist
+        if new_category and new_category not in category_data['Category'].tolist():
+            category_data = category_data.append({'Category': new_category}, ignore_index=True)
+            category_data.to_csv(category_csv_file, index=False)
 
 
+    def main():
+        if st.button("Associate", disabled=disable_associate_button):
+            st.success("\nAssociating...")
+            bullet_points = get_topic_info(topic, number_choice)
+            st.success("\nGenerating memorable mental imagery with your palace items...")
+            imagery_list = [get_memorable_imagery(items[i], bullet_points[i] if i < len(bullet_points) else '') for i in
+                            range(number_choice)]
+
+            st.markdown(f"**Memory Palace: {full_palace_name}**")
+            st.markdown("---")
+
+            for i in range(number_choice):
+                st.markdown(
+                    f"**{items[i]}**: {bullet_points[i] if i < len(bullet_points) else 'N/A'} \n(Memorable Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})")
+
+            if not selected_palace:
+                try:
+                    save_to_csv(palace_name, items, csv_file)
+
+                except AttributeError as e:
+                    # Handle the AttributeError and display a user-friendly message
+                    st.error(f"An error occurred: {e}")
+                    st.write(
+                        "Create the required files.")
+
+            st.success(f"Palace info saved to {csv_file}")
+            selected_or_new_category = selected_category if selected_category else new_category
+            if selected_or_new_category:
+                filename = save_to_category_folder(selected_or_new_category, full_palace_name, items, bullet_points,
+                                                   imagery_list)
+              #  with open(filename, "r") as file:
+              #      response_contents = file.read()
+              #      st.download_button("Download results", response_contents, file_name=os.path.basename(filename))
+
+            if new_category and new_category != selected_category:
+                add_category_to_csv(new_category, category_csv_file)
+
+            if st.button('Reset'):
+                st.experimental_rerun()
+
+
+
+
+    if __name__ == "__main__":
+        main()
