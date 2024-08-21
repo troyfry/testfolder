@@ -1,10 +1,14 @@
-import openai
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
-from langchain import PromptTemplate, LLMChain, OpenAI
-import pandas as pd
+
 import os
 import platform
+import pandas as pd
+import streamlit as st
+from langchain import LLMChain, OpenAI
+from langchain.prompts import PromptTemplate
+
+# Get OpenAI API key
+openai_api_key = st.text_input('OpenAI API Key', disabled=True)
+llm = OpenAI(temperature=0.6, openai_api_key=openai_api_key)
 
 # Hide default Streamlit menu and footer
 hide_default_format = """
@@ -15,42 +19,12 @@ hide_default_format = """
        """
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-st.markdown("## Study with ease ##\n Mastering Memory Palaces ")
-st.markdown(
-    """
-    ### Let AI Guide You ###
-    """)
+st.markdown("## Study with ease ##\n Mastering Memory Palaces")
+st.markdown("### Let AI Guide You ###")
 
-# Get OpenAI API key
-openai_api_key = st.text_input('OpenAI API Key', disabled=True)
-llm = OpenAI(temperature=0.6, openai_api_key=openai_api_key)
-
-# Instructions for the user
-instruct = """
-Please note that to use the AI-powered features in the Memory Palace tool, you might need your own OpenAI API key with a 
-balance of about $1 or more. This ensures that the AI can generate the associations effectively for your learning sessions.\n
-**Save "palace_items.csv" to the appropriate location on your local drive:**
-
-- **For Mac:** '~/app/'
-- **For Windows:** 'C:\\Users\\username\\app\\'
-
-**Instructions:**
-
-1. **Enter the name of a palace** (a place you know well) or **Add a new palace**.
-2. **Provide the topic you wish to learn about.**
-3. **Specify the number of main points you want the AI to retrieve.** (If selecting from an existing palace, the number of main points will match the number of palace items.)
-4. **List the palace items in your palace.** Each item will be associated with one of the main points retrieved by the AI.
-
-**Note:** Keep in mind the principle of "GIGO" - Garbage In, Garbage Out.
-"""
+# Define filenames
 og_file = "palace_items.csv"
 category_file = "categories.csv"
-
-with st.expander("Prerequisite:"):
-    st.markdown(instruct)
-   # with open(og_file, "r") as file:
-     #   response_contents = file.read()
-      #  st.download_button("Download palace_items.csv", response_contents, file_name=f"{og_file}")
 
 # Determine the home directory and construct the path
 home_directory = os.path.expanduser("~")
@@ -62,9 +36,25 @@ else:
 # Create the directory if it does not exist
 os.makedirs(app_directory, exist_ok=True)
 
-# Construct the full path for palace_items.csv and categories.csv
+# Construct the full paths for palace_items.csv and categories.csv
 csv_file = os.path.join(app_directory, 'palace_items.csv')
 category_csv_file = os.path.join(app_directory, 'categories.csv')
+
+# Function to create an empty CSV file with the given columns
+def create_empty_csv(file_path, columns):
+    pd.DataFrame(columns=columns).to_csv(file_path, index=False)
+
+# Check if files exist and provide an option to create them if they don't
+if not os.path.exists(csv_file) or not os.path.exists(category_csv_file):
+    st.warning("Required files not found! Please create them to continue.")
+    if st.button("Create palace_items.csv and categories.csv"):
+        # Create the necessary files with appropriate columns
+        create_empty_csv(csv_file, ['Palace'] + [f'Item_{i + 1}' for i in range(10)])
+        create_empty_csv(category_csv_file, ['Category'])
+        st.success("Files created successfully! Please reload the page.")
+        st.experimental_rerun()
+else:
+    st.success("Required files found! You can proceed.")
 
 # Load existing palace data from CSV
 if os.path.exists(csv_file):
@@ -84,7 +74,6 @@ else:
 number_choice = 5  # Default number of points
 prefill_palace_name = ''
 prefill_items = [''] * 10
-
 with st.expander("Start Here"):
     entered_pal, user_pal = st.columns(2)
     palace_list = palace_data['Palace'].unique().tolist()
@@ -228,9 +217,9 @@ with st.expander("Start Here"):
             if selected_or_new_category:
                 filename = save_to_category_folder(selected_or_new_category, full_palace_name, items, bullet_points,
                                                    imagery_list)
-                with open(filename, "r") as file:
-                    response_contents = file.read()
-                    st.download_button("Download results", response_contents, file_name=os.path.basename(filename))
+              #  with open(filename, "r") as file:
+              #      response_contents = file.read()
+              #      st.download_button("Download results", response_contents, file_name=os.path.basename(filename))
 
             if new_category and new_category != selected_category:
                 add_category_to_csv(new_category, category_csv_file)
