@@ -6,6 +6,21 @@ import streamlit as st
 from langchain import LLMChain, OpenAI
 from langchain.prompts import PromptTemplate
 
+# Determine the home directory and construct the path
+home_directory = os.path.expanduser("~")
+app_directory = os.path.join(home_directory, "app")
+
+# Print debug information
+st.write("Home Directory:", home_directory)
+st.write("App Directory:", app_directory)
+st.write("Current Working Directory:", os.getcwd())
+
+# List files in the directory
+if os.path.exists(app_directory):
+    st.write("Files in App Directory:", os.listdir(app_directory))
+else:
+    st.write("App Directory does not exist.")
+
 # Get OpenAI API key
 openai_api_key = st.text_input('OpenAI API Key', disabled=True)
 llm = OpenAI(temperature=0.6, openai_api_key=openai_api_key)
