@@ -14,7 +14,7 @@ hide_default_format = """
        """
 st.markdown(hide_default_format, unsafe_allow_html=True)
 
-st.write("# Welcome to Studeaze! 👋")
+st.write("# Welcome to Studeaze! 📚")
 
 
 
@@ -25,12 +25,14 @@ st.sidebar.success("Select a demo above.")
 #or Rememrable
 st.markdown(
     """
-    Welcome to studeaze, a place where learning is made simple and interesting. 
+    Welcome to studeaze, a place where learning is made simple and interesting. Create memorable associations
+    between the things you want to learn and the things you already know; allowing the information to stick
+    *FASTER* and *LONGER*... 
     
     Here You can:
 
-    - easily personalize your learning
-    - upload your own material to study 
+    - Personalize your learning
+    - Upload your own study material
     - Enter your topic of choice and let AI guide you
     
 

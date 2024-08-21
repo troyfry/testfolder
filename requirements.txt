@@ -1,5 +1,9 @@
-streamlit
+streamlit==1.33.0
+st-gsheets-connection
+pandas
 streamlit-extras
 langchain
 langchain_community
 openai
+numpy
+opencv-python

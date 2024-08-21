@@ -1,7 +1,7 @@
 /.DS_Store
 /.streamlit
-/USAmend.txt
-/secretkeys.py
 /tests
 /textfiles
 /venv
+/storedApps
+/image_folder
