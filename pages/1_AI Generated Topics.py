@@ -48,9 +48,9 @@ category_file = "categories.csv"
 
 with st.expander("Prerequisite:"):
     st.markdown(instruct)
-    with open(og_file, "r") as file:
-        response_contents = file.read()
-        st.download_button("Download palace_items.csv", response_contents, file_name=f"{og_file}")
+   # with open(og_file, "r") as file:
+     #   response_contents = file.read()
+      #  st.download_button("Download palace_items.csv", response_contents, file_name=f"{og_file}")
 
 # Determine the home directory and construct the path
 home_directory = os.path.expanduser("~")
