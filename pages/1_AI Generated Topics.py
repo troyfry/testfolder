@@ -225,9 +225,16 @@ with st.expander("Start Here"):
                     f"**{items[i]}**: {bullet_points[i] if i < len(bullet_points) else 'N/A'} \n(Memorable Imagery: {imagery_list[i] if i < len(imagery_list) else 'N/A'})")
 
             if not selected_palace:
-                save_to_csv(palace_name, items, csv_file)
-                st.success(f"Palace info saved to {csv_file}")
+                try:
+                    save_to_csv(palace_name, items, csv_file)
 
+                except AttributeError as e:
+                    # Handle the AttributeError and display a user-friendly message
+                    st.error(f"An error occurred: {e}")
+                    st.write(
+                        "Create the required files.")
+
+            st.success(f"Palace info saved to {csv_file}")
             selected_or_new_category = selected_category if selected_category else new_category
             if selected_or_new_category:
                 filename = save_to_category_folder(selected_or_new_category, full_palace_name, items, bullet_points,
