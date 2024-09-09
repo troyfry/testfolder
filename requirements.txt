@@ -2,6 +2,7 @@ streamlit==1.33.0
 st-gsheets-connection
 pandas
 streamlit-extras
+streamlit-tags
 langchain
 langchain_community
 openai
