@@ -221,7 +221,7 @@ def main():
                 category_list = ['']
         except Exception as e:
             st.error(f"Error loading categories: {str(e)}")
-            category_list = ['']
+           
 
         # Category selection or creation
         selected_category = st.selectbox('Select Category', category_list, key='select_category')
