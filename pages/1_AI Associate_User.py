@@ -228,13 +228,23 @@ def main():
         new_category = st.text_input('Or, add a new category', key='new_category', disabled=bool(selected_category))
         category = selected_category if selected_category else new_category
 
-        topic = st.text_area('Enter the topic to learn about', max_chars=100, key='topic')
+        topic = st.text_input('Enter the topic to learn about', max_chars=100, key='topic')
+
+        # New input for user-defined points
+        user_points = st_tags(
+            label='Enter key points about the topic',
+            text='Press enter to add more points',
+            value=[],
+            key='user_points'
+        )
         # Generate Associations button disabled if conditions are not met
         generate_button_disabled = not palace_name or len(items) < 5 or not category or not topic
 
         if st.button("Generate Associations", key='generate', disabled=generate_button_disabled):
             st.success("Making Associations......")
-            bullet_points = get_topic_info(topic, llm)
+
+            # Use user-defined points instead of AI-generated ones
+            bullet_points = user_points[:len(items)]  # Limit to the number of items
             imagery_list = [get_memorable_imagery(item, point, llm) for item, point in zip(items, bullet_points)]
 
             # Display the associations
@@ -252,6 +262,7 @@ def main():
 
             if file_path:
                 st.success(f"Associations saved to {file_path}.")
+
 
     with tab2:
         st.header("View Associations")
@@ -288,7 +299,7 @@ def main():
                             if len(lines) >= 2:
                                 topic_line = lines[0]
                                 palace_line = lines[1]
-                                st.markdown(f"### {topic_line}")
+                                st.markdown(f"**{topic_line}**")
                                 st.markdown(f"**{palace_line}**")
                                 st.write("")
                                 for line in lines[2:]:
